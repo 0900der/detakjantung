@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <title>❤️ Monitor Anda</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: 'Poppins', sans-serif; text-align: center; background: #0a0a1a; color: white; padding: 50px; }
+    .bpm { font-size: 5rem; font-weight: bold; color: #ff4458; margin: 20px 0; }
+    .pulse { animation: pulse 1s infinite; color: #ff4458; }
+    @keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.1)} 100%{transform:scale(1)} }
+    canvas { width: 80%; max-width: 500px; margin: 30px auto; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h2><i class="fas fa-heart pulse"></i> Monitoring Detak Jantung Anda</h2>
+  <p>Selamat datang, <strong id="pname">Pasien</strong>!</p>
+  
+  <div class="bpm" id="bpm">--</div>
+  <div>Status: <span id="status">Mengukur...</span></div>
+  <canvas id="chart" height="100"></canvas>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const name = urlParams.get('name') || 'Pasien';
+    document.getElementById('pname').textContent = name;
+
+    let bpm = 76;
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: { labels: Array(20).fill(''), datasets: [{ data: Array(20).fill(null), borderColor: '#ff4458', backgroundColor: 'rgba(255,68,88,0.1)', tension: 0.4, fill: true }] },
+      options: { responsive: true, scales: { y: { min: 50, max: 120 } } }
+    });
+
+    function updateData() {
+      bpm += (Math.random() - 0.5) * 5;
+      if (bpm < 60) bpm = 60;
+      if (bpm > 100) bpm = 100;
+
+      document.getElementById('bpm').textContent = Math.round(bpm);
+      document.getElementById('status').textContent = "Normal";
+
+      chart.data.labels.push(new Date().toLocaleTimeString());
+      chart.data.datasets[0].data.push(bpm);
+      if (chart.data.labels.length > 20) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+      }
+      chart.update();
+    }
+
+    setInterval(updateData, 1200);
+    updateData();
+  </script>
+</body>
+</html>
